@@ -1,5 +1,6 @@
-package ru.unibell.clientinfoapi.entity;
+package ru.unibell.clientinfoapi.models.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import ru.unibell.clientinfoapi.exception.ContactValidationException;
@@ -22,7 +23,8 @@ public abstract class Contact {
     private Long contactId;
 
     @ManyToOne
-    @JoinColumn(name = "client_reference_id", referencedColumnName = "clientId", nullable = false)
+    @JoinColumn(name = "client_ref_id", referencedColumnName = "clientId", nullable = false)
+    @JsonIgnore
     private Client client;
 
     private String value;
@@ -32,9 +34,9 @@ public abstract class Contact {
 
     // Factory method to create a Contact object based on the specified contactType.
     public static Contact createContact(ContactType contactType) {
-        if ("PHONE".equals(contactType.name())) {
+        if (ContactType.PHONE.equals(contactType)) {
             return new PhoneContact();
-        } else if ("EMAIL".equals(contactType.name())) {
+        } else if (ContactType.EMAIL.equals(contactType)) {
             return new EmailContact();
         } else {
             throw new ContactValidationException(Error.CONTACT_TYPE_ERR);

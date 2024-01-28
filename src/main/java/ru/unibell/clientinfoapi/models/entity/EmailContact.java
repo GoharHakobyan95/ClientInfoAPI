@@ -1,4 +1,4 @@
-package ru.unibell.clientinfoapi.entity;
+package ru.unibell.clientinfoapi.models.entity;
 
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
@@ -6,13 +6,13 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Entity
-@DiscriminatorValue("PHONE")
+@DiscriminatorValue("EMAIL")
 @Getter
 @Setter
-public class PhoneContact extends Contact {
+public class EmailContact extends Contact {
 
     @Override
     public String getContactType() {
-        return ContactType.PHONE.name();
+        return ContactType.EMAIL.name();
     }
 }

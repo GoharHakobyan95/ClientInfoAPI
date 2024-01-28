@@ -1,9 +1,9 @@
 package ru.unibell.clientinfoapi.service;
 
-import ru.unibell.clientinfoapi.dto.ContactCreateDto;
+import ru.unibell.clientinfoapi.models.dto.ContactDto;
 
 public interface ContactService {
 
-    ContactCreateDto save(Long id, ContactCreateDto contactCreateDto);
+    ContactDto save(Long id, ContactDto contactDto);
 
 }

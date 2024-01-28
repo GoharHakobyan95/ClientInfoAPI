@@ -1,4 +1,4 @@
-package ru.unibell.clientinfoapi.entity;
+package ru.unibell.clientinfoapi.models.entity;
 
 import jakarta.persistence.*;
 import lombok.*;

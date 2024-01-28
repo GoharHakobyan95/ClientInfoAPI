@@ -4,32 +4,34 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import ru.unibell.clientinfoapi.dto.ClientContactsDto;
-import ru.unibell.clientinfoapi.dto.ClientCreateDto;
-import ru.unibell.clientinfoapi.dto.ClientResponseDto;
-import ru.unibell.clientinfoapi.dto.ContactCreateDto;
-import ru.unibell.clientinfoapi.entity.Client;
-import ru.unibell.clientinfoapi.entity.ContactType;
 import ru.unibell.clientinfoapi.exception.ClientNotFoundException;
 import ru.unibell.clientinfoapi.exception.Error;
 import ru.unibell.clientinfoapi.mapper.ClientMapper;
+import ru.unibell.clientinfoapi.mapper.ContactMapper;
+import ru.unibell.clientinfoapi.models.dto.ClientDto;
+import ru.unibell.clientinfoapi.models.dto.ContactDto;
+import ru.unibell.clientinfoapi.models.entity.*;
 import ru.unibell.clientinfoapi.repository.ClientRepository;
+import ru.unibell.clientinfoapi.repository.ContactRepository;
 import ru.unibell.clientinfoapi.service.ClientService;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class ClientServiceImpl implements ClientService {
 
     private final ClientRepository clientRepository;
-
+    private final ContactRepository contactRepository;
     private final ClientMapper clientMapper;
+    private final ContactMapper contactMapper;
 
     @Override
-    public ClientCreateDto save(ClientCreateDto clientCreateDto) {
-        Client savedClient = clientRepository.save(clientMapper.mapToClient(clientCreateDto));
-        return clientMapper.mapToDto(savedClient);
+    public ClientDto save(ClientDto clientDto) {
+        Client savedClient = clientRepository.save(clientMapper.toClient(clientDto));
+        return clientMapper.toDto(savedClient);
     }
 
     @Override
@@ -38,34 +40,53 @@ public class ClientServiceImpl implements ClientService {
                 .orElseThrow(() -> new ClientNotFoundException(Error.CLIENT_NOT_FOUND));
     }
 
+    public List<Contact> getClientContactsById(Long clientId) {
+        List<PhoneContact> phoneContacts = contactRepository.findPhoneContactsByClientClientId(clientId);
+        List<EmailContact> emailContacts = contactRepository.findEmailContactsByClientClientId(clientId);
+        List<Contact> allContacts = new ArrayList<>();
+        allContacts.addAll(emailContacts);
+        allContacts.addAll(phoneContacts);
+        return allContacts;
+    }
+
     @Override
-    public Page<ClientResponseDto> getPaginatedClients(Pageable pageable) {
-        return clientRepository.findAll(pageable).map(clientMapper::mapToResponseDto);
+    public Page<ClientDto> getPaginatedClients(Pageable pageable) {
+        return clientRepository.findAll(pageable).map(clientMapper::toDto);
     }
 
-    public List<ClientContactsDto> getContactsByClientId(Long id) {
-        Client client = getClientById(id);
-        return clientMapper.mapToClientWithContacts(client);
+    public List<ContactDto> getContactsByClientId(Long id) {
+        List<Contact> clientContactsById = getClientContactsById(id);
+        return contactMapper.toDtoList(clientContactsById);
     }
 
 
-    public List<ContactCreateDto> getClientContactsByType(Long id, String type) {
+    public List<ContactDto> getClientContactsByType(Long id, String type) {
         Client client = getClientById(id);
         if (type != null) {
             ContactType contactType = ContactType.valueOf(type);
             if (contactType == ContactType.PHONE) {
-                return clientMapper.mapToPhonesList(client);
+                return clientMapper.toPhonesList(client);
             } else if (contactType == ContactType.EMAIL) {
-                return clientMapper.mapToEmailsList(client);
+                return clientMapper.toEmailsList(client);
             }
         }
-        return clientMapper.mapToContactsList(client);
+        return clientMapper.toContactsList(client);
     }
 
-    public ClientResponseDto findById(Long id) {
+    public ClientDto findById(Long id) {
         return clientRepository.findById(id)
-                .map(clientMapper::mapToResponseDto)
+                .map(clientMapper::toDto)
                 .orElseThrow(() -> new ClientNotFoundException(Error.CLIENT_NOT_FOUND));
 
+    }
+
+    @Override
+    public void deleteClient(Long id) {
+        Optional<Client> client = clientRepository.findById(id);
+        if (client.isPresent()) {
+            clientRepository.deleteById(id);
+        } else {
+            throw new ClientNotFoundException(Error.CLIENT_NOT_FOUND);
+        }
     }
 }

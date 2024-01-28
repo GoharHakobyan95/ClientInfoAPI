@@ -25,18 +25,18 @@ Lombok, MapStruct,  MySql Connector J,  Spring Data Jpa.
 /***/
      // Add a new client
     @PostMapping
-    public ResponseEntity<ClientCreateDto> addClient(@Valid @RequestBody ClientCreateDto clientCreateDto) {
+    public ResponseEntity<ClientDto> addClient(@Valid @RequestBody ClientDto ClientDto) {
         logger.info("Received a request to add a new client.");
-        ClientCreateDto savedClient = clientService.save(clientCreateDto);
+        ClientDto savedClient = clientService.save(ClientDto);
         logger.info("Client added successfully. Client name: {}", savedClient.getFirstName());
         return ResponseEntity.status(HttpStatus.CREATED).body(savedClient);
     }
 
     // Get a list of all clients with pagination
     @GetMapping
-    public ResponseEntity<Page<ClientResponseDto>> getAllClients(@PageableDefault(size = 9) Pageable pageable) {
+    public ResponseEntity<Page<ClientResponse>> getAllClients(@PageableDefault(size = 9) Pageable pageable) {
         logger.info("Received a request to fetch a list of clients with pagination. Page: {}, Size: {}", pageable.getPageNumber(), pageable.getPageSize());
-        Page<ClientResponseDto> clients = clientService.getPaginatedClients(pageable);
+        Page<ClientResponse> clients = clientService.getPaginatedClients(pageable);
         logger.info("Fetched {} clients successfully.", clients.getTotalElements());
         return ResponseEntity.ok(clients);
     }

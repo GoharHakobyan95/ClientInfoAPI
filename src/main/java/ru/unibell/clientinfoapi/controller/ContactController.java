@@ -1,6 +1,5 @@
 package ru.unibell.clientinfoapi.controller;
 
-
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -10,11 +9,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.unibell.clientinfoapi.dto.ContactCreateDto;
+import ru.unibell.clientinfoapi.models.dto.ContactDto;
 import ru.unibell.clientinfoapi.service.impl.ContactServiceImpl;
 
 @RestController
-@RequestMapping("/api/contacts")
+@RequestMapping("/api/v1/contacts")
 @RequiredArgsConstructor
 @Validated
 @Slf4j
@@ -26,9 +25,9 @@ public class ContactController {
 
     // Add a new contact for a client
     @PostMapping("/client/{id}")
-    public ResponseEntity<ContactCreateDto> addContact(@PathVariable("id") Long id, @Valid @RequestBody ContactCreateDto ContactCreateDto) {
+    public ResponseEntity<ContactDto> addContact(@PathVariable("id") Long id, @Valid @RequestBody ContactDto contactDto) {
         logger.info("Received a request to add a new contact for client with ID: {}", id);
-        ContactCreateDto savedContact = contactService.save(id, ContactCreateDto);
+        ContactDto savedContact = contactService.save(id, contactDto);
         if (savedContact != null) {
             return ResponseEntity.ok(savedContact);
         } else {
