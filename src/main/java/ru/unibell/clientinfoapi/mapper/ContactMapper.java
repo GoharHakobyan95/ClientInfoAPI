@@ -19,18 +19,18 @@ public interface ContactMapper {
     List<ContactDto> toDtoList(List<Contact> contacts);
 
     @Mapping(target = "client")
-    default Contact toPhone(ContactDto contactCreateDto, Client client) {
+    default Contact toPhone(ContactDto contactDto, Client client) {
         Contact phoneContact = Contact.createContact(ContactType.PHONE);
         phoneContact.setClient(client);
-        phoneContact.setValue(contactCreateDto.getValue());
+        phoneContact.setValue(contactDto.getValue());
         return phoneContact;
     }
 
     @Mapping(target = "client")
-    default Contact toEmail(ContactDto contactCreateDto, Client client) {
+    default Contact toEmail(ContactDto contactDto, Client client) {
         Contact emailContact = Contact.createContact(ContactType.EMAIL);
         emailContact.setClient(client);
-        emailContact.setValue(contactCreateDto.getValue());
+        emailContact.setValue(contactDto.getValue());
         return emailContact;
     }
 
